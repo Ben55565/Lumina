@@ -16,7 +16,8 @@ export default function Footer() {
         padding: "5px",
         height: theme.layout.footerHeight,
         backgroundColor: theme.palette.background.paper,
-        zIndex: 10000,
+        zIndex: 2,
+        boxShadow: 5,
       }}
     >
       <Box sx={{ padding: 2 }}>

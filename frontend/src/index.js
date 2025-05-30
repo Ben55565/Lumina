@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import "./index.css";
 import App from "./App";
 import ReactDOM from "react-dom/client";
+import "./i18n";
 
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { lightTheme, darkTheme } from "./theme";

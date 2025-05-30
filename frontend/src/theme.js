@@ -1,4 +1,7 @@
 import { createTheme } from "@mui/material/styles";
+import i18n from "./i18n";
+
+const isHebrew = i18n.language?.startsWith("he");
 
 const commonSettings = {
   typography: {
@@ -61,7 +64,17 @@ const layout = {
   footerHeight: 100,
 };
 
+const direction = isHebrew ? "rtl" : "ltr";
+
+const typography = {
+  fontFamily: isHebrew
+    ? "'Assistant', sans-serif"
+    : "'Roboto', 'Playfair Display', 'Raleway', sans-serif",
+};
+
 export const lightTheme = createTheme({
+  direction: direction,
+  typography: typography,
   palette: {
     mode: "light",
     primary: { main: "#6C63FF" },
@@ -79,6 +92,8 @@ export const lightTheme = createTheme({
 });
 
 export const darkTheme = createTheme({
+  direction: direction,
+  typography: typography,
   palette: {
     mode: "dark",
     primary: { main: "#B8A1FF" },

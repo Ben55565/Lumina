@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import BaseAccountForm from "../../components/BaseAccountForm/BaseAccountForm.jsx";
+import { useTranslation } from "react-i18next";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -7,6 +8,8 @@ export default function LoginPage() {
     email: { error: false, helperText: "" },
     password: { error: false, helperText: "" },
   });
+
+  const { t } = useTranslation();
 
   const handleChange = (field) => (e) => {
     setFormData({ ...formData, [field]: e.target.value });
@@ -28,12 +31,12 @@ export default function LoginPage() {
 
   return (
     <BaseAccountForm
-      title="Login to existing account"
+      title={t("loginHeader")}
       formData={formData}
       formErrors={formErrors}
       onChange={handleChange}
       onSubmit={handleSubmit}
-      submitText="Login"
+      submitText={t("loginButton")}
     />
   );
 }

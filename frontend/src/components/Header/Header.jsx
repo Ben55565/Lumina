@@ -7,18 +7,14 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
-import { Brightness4, Brightness7 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
+import { useTranslation } from "react-i18next";
 
-export default function Header({
-  ShowDrawer,
-  setShowDrawer,
-  mode,
-  setMode,
-  toggleTheme,
-}) {
+import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher.jsx";
+
+export default function Header({ ShowDrawer, setShowDrawer }) {
   const theme = useTheme();
-
+  const { t } = useTranslation();
   const buttonStyle = {
     boxShadow: 2,
     backgroundColor: theme.palette.buttons.background,
@@ -35,7 +31,19 @@ export default function Header({
         height: theme.layout.headerHeight,
         flexDirection: "row",
         alignItems: "center",
-        boxShadow: 5,
+        boxShadow: `
+      0 4px 6px rgba(180, 168, 255, 0.4),
+      0 8px 10px -4px rgba(180, 168, 255, 0.5)
+    `,
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          width: "100%",
+          height: "1px",
+          background: "rgba(180, 168, 255, 0.6)",
+        },
         zIndex: (theme) => theme.zIndex.drawer + 1,
       }}
     >
@@ -49,7 +57,16 @@ export default function Header({
         >
           <MenuIcon />
         </IconButton>
-        <Button component={Link} to="/home">
+        <Button
+          component={Link}
+          to="/home"
+          disableRipple
+          sx={{
+            "&:hover": {
+              backgroundColor: "transparent",
+            },
+          }}
+        >
           <Typography
             variant="h5"
             component="div"
@@ -79,16 +96,14 @@ export default function Header({
           right: 50,
         }}
       >
-        <IconButton onClick={toggleTheme} color="inherit">
-          {mode === "light" ? <Brightness4 /> : <Brightness7 />}
-        </IconButton>
+        <LanguageSwitcher />
         <Button
           component={Link}
           to="/login"
           variant="contained"
           sx={buttonStyle}
         >
-          Login
+          {t("login")}
         </Button>
         <Button
           component={Link}
@@ -96,7 +111,7 @@ export default function Header({
           variant="contained"
           sx={buttonStyle}
         >
-          Register
+          {t("register")}
         </Button>
       </Box>
     </AppBar>

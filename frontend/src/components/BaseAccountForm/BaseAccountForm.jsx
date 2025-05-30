@@ -1,4 +1,3 @@
-// components/BaseAccountForm.jsx
 import {
   Box,
   Button,
@@ -10,6 +9,7 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function BaseAccountForm({
   title,
@@ -32,6 +32,8 @@ export default function BaseAccountForm({
   const [showConfirm, setShowConfirm] = useState(false);
   const handleToggleConfirm = () => setShowConfirm((prev) => !prev);
 
+  const { t } = useTranslation();
+
   return (
     <Box display="flex" justifyContent="center" mt={10}>
       <Paper elevation={3} sx={{ p: 4, width: 500 }}>
@@ -41,7 +43,7 @@ export default function BaseAccountForm({
         <form onSubmit={onSubmit}>
           <TextField
             fullWidth
-            label="Email"
+            label={t("email")}
             margin="normal"
             type="email"
             value={formData.email}
@@ -53,7 +55,7 @@ export default function BaseAccountForm({
 
           <TextField
             fullWidth
-            label="Password"
+            label={t("password")}
             margin="normal"
             type={showPassword ? "text" : "password"}
             value={formData.password}
@@ -76,7 +78,7 @@ export default function BaseAccountForm({
           {showConfirmPassword && (
             <TextField
               fullWidth
-              label="Confirm Password"
+              label={t("confirmPassword")}
               margin="normal"
               type={showConfirm ? "text" : "password"}
               value={formData.confirmPassword}

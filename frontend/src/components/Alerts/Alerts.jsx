@@ -10,7 +10,7 @@ const Alerts = ({ alertInfo }) => {
         left: "50%",
         transform: "translateX(-50%)",
         padding: "20px",
-        zIndex: 1000,
+        zIndex: 2,
       }}
     >
       {alertInfo.show && (

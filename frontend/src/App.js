@@ -29,24 +29,30 @@ function App({ toggleTheme, mode, setMode }) {
   const theme = useTheme();
 
   return (
-    <Router>
-      <Box sx={{ display: "flex" }}>
-        <DrawerComp setShowDrawer={setShowDrawer} ShowDrawer={ShowDrawer} />
+    <Box
+      sx={{
+        display: "flex",
+        overflowX: "hidden",
+        backgroundColor: "background.default",
+        minHeight: "100vh",
+      }}
+    >
+      <Router>
+        <DrawerComp
+          ShowDrawer={ShowDrawer}
+          mode={mode}
+          setMode={setMode}
+          toggleTheme={toggleTheme}
+        />
         <Box
           sx={{
             flexGrow: 1,
-            ml: ShowDrawer ? `${theme.layout.drawerWidth}` : 0,
+            ml: ShowDrawer ? `${theme.layout.drawerWidth}px` : 0,
             transition: "margin-left 0.3s ease",
             width: "100%",
           }}
         >
-          <Header
-            ShowDrawer={ShowDrawer}
-            setShowDrawer={setShowDrawer}
-            mode={mode}
-            setMode={setMode}
-            toggleTheme={toggleTheme}
-          />
+          <Header ShowDrawer={ShowDrawer} setShowDrawer={setShowDrawer} />
 
           <Routes>
             <Route path="/" element={<Navigate to="/home" replace />} />
@@ -57,11 +63,12 @@ function App({ toggleTheme, mode, setMode }) {
             />
             <Route path="/login" element={<LoginPage />} />
           </Routes>
+
           <Alerts alertInfo={alertInfo} />
           <Footer />
         </Box>
-      </Box>
-    </Router>
+      </Router>
+    </Box>
   );
 }
 

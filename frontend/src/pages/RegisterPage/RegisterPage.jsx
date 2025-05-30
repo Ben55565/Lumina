@@ -10,15 +10,17 @@ import {
 } from "@mui/material";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import Tooltip from "@mui/material/Tooltip";
-import { useTheme } from "@mui/material/styles";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 
 import BaseAccountForm from "../../components/BaseAccountForm/BaseAccountForm.jsx";
 import OTPInput from "../../components/OTPInput/OTPInput.jsx";
 import OtpTimer from "../../components/OtpTimer/OtpTimer.jsx";
+import { useTranslation } from "react-i18next";
 
 import api from "../../api/api.js";
 
@@ -36,8 +38,9 @@ export default function RegisterPage({ setAlertInfo }) {
     displayName: "",
   });
 
-  const theme = useTheme();
   const [step, setStep] = useState(0);
+
+  const { t } = useTranslation();
 
   const [formErrors, setFormErrors] = useState({
     email: { error: false, helperText: "" },
@@ -287,10 +290,10 @@ export default function RegisterPage({ setAlertInfo }) {
   };
 
   const rules = [
-    { key: "length", label: "6 characters" },
-    { key: "lowercase", label: "One lowercase character" },
-    { key: "uppercase", label: "One uppercase character" },
-    { key: "digit", label: "One digit" },
+    { key: "length", label: t("passwordLength") },
+    { key: "lowercase", label: t("passwordLowercase") },
+    { key: "uppercase", label: t("passwordUppercase") },
+    { key: "digit", label: t("passwordDigit") },
   ];
 
   const formatPhoneNumber = (value) => {
@@ -316,23 +319,33 @@ export default function RegisterPage({ setAlertInfo }) {
   const passwordRestrictions = (
     <>
       <Typography fontWeight="bold" component="p" sx={{ mt: 1, fontSize: 14 }}>
-        Password must contain at least:
+        {t("passwordRulesHeader")}
       </Typography>
       <Box component="ul" sx={{ pl: 2, m: 0 }}>
-        {rules.map((rule) => (
-          <Typography
-            key={rule.key}
-            component="li"
-            sx={{
-              fontSize: 13,
-              color: !formErrors.password[rule.key]
-                ? theme.palette.error.main
-                : "text.secondary",
-            }}
-          >
-            {rule.label}
-          </Typography>
-        ))}
+        {rules.map((rule) => {
+          const isValid = formErrors.password[rule.key];
+          return (
+            <Box
+              key={rule.key}
+              component="li"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                fontSize: 13,
+                mb: 0.5,
+              }}
+            >
+              {isValid ? (
+                <CheckIcon
+                  sx={{ color: "success.main", fontSize: 16, mr: 1 }}
+                />
+              ) : (
+                <CloseIcon sx={{ color: "error.main", fontSize: 16, mr: 1 }} />
+              )}
+              {rule.label}
+            </Box>
+          );
+        })}
       </Box>
     </>
   );
@@ -492,12 +505,12 @@ export default function RegisterPage({ setAlertInfo }) {
     <>
       {step === 0 && (
         <BaseAccountForm
-          title="Create your account"
+          title={t("createAccountHeader")}
           formData={formData}
           formErrors={formErrors}
           onChange={handleChange}
           onSubmit={handleSubmit}
-          submitText="Register"
+          submitText={t("registerButton")}
           isPasswordInvalid={() => isPasswordInvalid}
           showConfirmPassword={true}
         >
