@@ -1,4 +1,5 @@
 import axios from "axios";
+import { setLoadingExternal } from "../context/LoadingContext";
 
 const api = axios.create({
   baseURL: "http://localhost:8080/api",
@@ -11,17 +12,25 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    setLoadingExternal(true);
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => {
+    setLoadingExternal(false);
+    return Promise.reject(error);
+  },
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    setLoadingExternal(false);
+    return response;
+  },
   (error) => {
+    setLoadingExternal(false);
     console.error("API error:", error.response?.data || error.message);
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

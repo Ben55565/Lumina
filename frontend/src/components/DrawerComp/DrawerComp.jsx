@@ -5,7 +5,7 @@ import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import HomeIcon from "@mui/icons-material/Home";
+import InfoIcon from "@mui/icons-material/Info";
 import FeedIcon from "@mui/icons-material/Feed";
 import { Brightness4, Brightness7 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
@@ -22,7 +22,7 @@ export default function DrawerComp({ ShowDrawer, mode, setMode, toggleTheme }) {
   const { t } = useTranslation();
 
   const menuItems = [
-    { text: t("home"), icon: <HomeIcon />, link: "/home" },
+    { text: t("about"), icon: <InfoIcon />, link: "/about" },
     { text: t("feed"), icon: <FeedIcon />, link: "/feed" },
   ];
 

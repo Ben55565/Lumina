@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -20,6 +21,14 @@ import CloseIcon from "@mui/icons-material/Close";
 import BaseAccountForm from "../../components/BaseAccountForm/BaseAccountForm.jsx";
 import OTPInput from "../../components/OTPInput/OTPInput.jsx";
 import OtpTimer from "../../components/OtpTimer/OtpTimer.jsx";
+import {
+  validateEmail,
+  validatePassword,
+  validateMatchingPasswords,
+  validateName,
+  validateDisplayName,
+  validateBirthDate,
+} from "../../utils/validations.js";
 import { useTranslation } from "react-i18next";
 
 import api from "../../api/api.js";
@@ -40,7 +49,9 @@ export default function RegisterPage({ setAlertInfo }) {
 
   const [step, setStep] = useState(0);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+
+  const navigate = useNavigate();
 
   const [formErrors, setFormErrors] = useState({
     email: { error: false, helperText: "" },
@@ -55,17 +66,20 @@ export default function RegisterPage({ setAlertInfo }) {
     lastName: { error: false, helperText: "" },
     displayName: {
       error: false,
-      helperText:
-        "Note: Display name is a must, it will be used to identify you in the platform if you choose to remain anonymous. Cannot contain special characters.",
+      helperText: t("displayNameHelperText"),
     },
+    birthDate: { error: false, helperText: "" },
   });
 
   const [resetCount, setResetCount] = useState(0);
 
   const sendVerificationEmail = async () => {
     try {
-      const res = await api.post("/email-verification", {
-        email: formData.email,
+      const res = await api.get("/email-verification", {
+        params: { email: formData.email },
+        headers: {
+          "Accept-Language": i18n.language,
+        },
       });
       setStep(1);
       setResetCount((count) => count + 1);
@@ -84,11 +98,12 @@ export default function RegisterPage({ setAlertInfo }) {
 
   const checkOTPInput = async () => {
     try {
-      const res = await api.post("/otp-verification", {
-        email: formData.email,
-        code: formData.code,
+      const res = await api.get("/otp-verification", {
+        params: { email: formData.email, inputCode: formData.code },
+        headers: {
+          "Accept-Language": i18n.language,
+        },
       });
-
       setAlertInfo({
         show: true,
         type: res.data.result,
@@ -110,15 +125,23 @@ export default function RegisterPage({ setAlertInfo }) {
 
   const saveUser = async () => {
     try {
-      const res = await api.post("/complete-profile", {
-        email: formData.email,
-        password: formData.password,
-        name: formData.firstName.trim() + " " + formData.lastName.trim(),
-        displayName: formData.displayName,
-        birthDate: formData.birthDate,
-        phoneNum: formData.phoneNum,
-        anonymity: formData.anonymity,
-      });
+      const res = await api.post(
+        "/complete-profile",
+        {
+          email: formData.email,
+          password: formData.password,
+          name: formData.firstName.trim() + " " + formData.lastName.trim(),
+          displayName: formData.displayName,
+          birthDate: formData.birthDate,
+          phoneNum: formData.phoneNum,
+          anonymity: formData.anonymity,
+        },
+        {
+          headers: {
+            "Accept-Language": i18n.language,
+          },
+        }
+      );
       setAlertInfo({
         show: true,
         type: res.data.result,
@@ -126,6 +149,7 @@ export default function RegisterPage({ setAlertInfo }) {
       });
       setTimeout(() => {
         setAlertInfo({ show: false });
+        navigate("/login");
       }, 3000);
     } catch (err) {
       const errorData = err.response?.data;
@@ -164,126 +188,106 @@ export default function RegisterPage({ setAlertInfo }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (step === 0) {
-      if (validate(formData)) {
-        sendVerificationEmail();
+      if (validate(formData, true)) {
+        try {
+          const res = await api.get("/check-email", {
+            params: { email: formData.email },
+          });
+          if (!res.data) {
+            sendVerificationEmail();
+          } else {
+            setAlertInfo({
+              show: true,
+              type: "error",
+              message: t("emailAlreadyInUse"),
+            });
+            setTimeout(() => {
+              setAlertInfo({ show: false });
+            }, 3000);
+          }
+        } catch (err) {
+          console.error(
+            "Email check failed:",
+            err.response?.data || err.message
+          );
+        }
       }
     } else if (step === 1) {
       checkOTPInput();
     } else {
+      if (!validate(formData, true)) return;
       saveUser();
     }
   };
 
-  const handleChange = (field) => (e) => {
-    const newValue = e.target.value;
-    const newFormData = { ...formData, [field]: newValue };
-    setFormData(newFormData);
-    if ((step === 0 || step === 2) && e.target.value) {
-      validate(newFormData);
+  const handleChange = (field) => (eOrValue) => {
+    let value;
+
+    if (eOrValue?.target?.type === "checkbox") {
+      value = eOrValue.target.checked;
+    } else if (dayjs.isDayjs(eOrValue) || eOrValue === null) {
+      value = eOrValue;
+    } else if (eOrValue?.target) {
+      value = eOrValue.target.value;
     } else {
-      if (field === "password") {
-        setFormErrors({
-          ...formErrors,
-          [field]: {
-            length: false,
-            lowercase: false,
-            uppercase: false,
-            digit: false,
-          },
-        });
-      } else {
-        setFormErrors({
-          ...formErrors,
-          [field]: { error: false, helperText: "" },
-        });
-      }
+      value = eOrValue;
+    }
+
+    const newFormData = {
+      ...formData,
+      [field]: value,
+    };
+
+    setFormData(newFormData);
+
+    if (
+      ((step === 0 || step === 2) && typeof value === "string") ||
+      field === "birthDate"
+    ) {
+      validate(newFormData);
     }
   };
 
-  const validate = (data) => {
+  const validate = (data, isSubmit = false) => {
     const errors = {
-      email: { error: false, helperText: "" },
-      password: {
-        length: false,
-        lowercase: false,
-        uppercase: false,
-        digit: false,
-      },
-      confirmPassword: { error: false, helperText: "" },
+      email: validateEmail({ data, t }),
+      password: validatePassword({ data }),
+      confirmPassword: validateMatchingPasswords({ data, t }),
       firstName: { error: false, helperText: "" },
       lastName: { error: false, helperText: "" },
       displayName: { error: false, helperText: "" },
+      birthDate: { error: false, helperText: "" },
     };
-    let hasError = false;
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email) && data.email) {
-      errors.email = {
-        error: true,
-        helperText: "Invalid email address",
-      };
-      hasError = true;
-    }
-    if (data.password) {
-      errors.password = {
-        length: data.password.length >= 6,
-        lowercase: /[a-z]/.test(data.password),
-        uppercase: /[A-Z]/.test(data.password),
-        digit: /\d/.test(data.password),
-      };
-      const failed = Object.values(errors.password).some(
-        (val) => val === false
-      );
-      if (failed) hasError = true;
-    }
     if (step === 2) {
-      if (!data.firstName.trim() || data.firstName.length < 2) {
-        errors.firstName = {
-          error: true,
-          helperText:
-            "First name is required and must be at least 2 characters long",
-        };
-        hasError = true;
-      }
+      const { firstName, lastName } = data;
 
-      if (!data.lastName.trim() || data.lastName.length < 2) {
-        errors.lastName = {
-          error: true,
-          helperText:
-            "Last name is required and must be at least 2 characters long",
-        };
-        hasError = true;
-      }
+      if (isSubmit || firstName?.trim())
+        errors.firstName = validateName({
+          name: firstName,
+          t,
+          nameField: "firstName",
+        });
 
-      if (!data.displayName.trim() || data.displayName.length < 2) {
-        errors.displayName = {
-          error: true,
-          helperText:
-            "Display name is required and must be at least 2 characters long",
-        };
-        hasError = true;
-      } else if (/[^a-zA-Z0-9\s]/.test(data.displayName)) {
-        errors.displayName = {
-          error: true,
-          helperText: "Display name cannot contain special characters",
-        };
-        hasError = true;
-      }
+      if (isSubmit || lastName?.trim())
+        errors.lastName = validateName({
+          name: lastName,
+          t,
+          nameField: "lastName",
+        });
+
+      if (isSubmit || data.displayName?.trim())
+        errors.displayName = validateDisplayName({ data, t });
+
+      if (isSubmit || data.birthDate)
+        errors.birthDate = validateBirthDate({ data, t, dayjs });
     }
 
-    if (
-      data.password !== data.confirmPassword &&
-      data.password &&
-      data.confirmPassword
-    ) {
-      errors.confirmPassword = {
-        error: true,
-        helperText: "Passwords do not match",
-      };
-      hasError = true;
-    }
+    const hasError = Object.values(errors).some(
+      (val) => typeof val === "object" && val.error === true
+    );
 
     setFormErrors(errors);
     return !hasError;
@@ -299,7 +303,9 @@ export default function RegisterPage({ setAlertInfo }) {
   const formatPhoneNumber = (value) => {
     const digits = value.replace(/\D/g, "");
 
-    if (!digits.startsWith("05")) return "05";
+    if (digits === "05") return "";
+
+    if (!digits.startsWith("05")) return "05" + digits;
 
     const limitedDigits = digits.slice(0, 10);
 
@@ -362,7 +368,7 @@ export default function RegisterPage({ setAlertInfo }) {
       p={4}
     >
       <Typography variant="h5" mb={2}>
-        Please enter the verification code sent to your email address
+        {t("otpVerifyHeader")}
       </Typography>
 
       <OtpTimer reset={resetCount} />
@@ -375,7 +381,7 @@ export default function RegisterPage({ setAlertInfo }) {
       </Box>
 
       <Button variant="contained" type="submit" sx={{ mt: 5 }}>
-        Verify
+        {t("verify")}
       </Button>
 
       <Typography
@@ -386,7 +392,7 @@ export default function RegisterPage({ setAlertInfo }) {
         tabIndex={0}
         role="button"
       >
-        Click me to resend code
+        {t("resentOtp")}
       </Typography>
     </Box>
   );
@@ -403,7 +409,7 @@ export default function RegisterPage({ setAlertInfo }) {
       >
         <Box display="flex" gap={2} width="100%">
           <TextField
-            label="First Name"
+            label={t("firstName")}
             fullWidth
             value={formData.firstName}
             onChange={handleChange("firstName")}
@@ -412,7 +418,7 @@ export default function RegisterPage({ setAlertInfo }) {
             required
           />
           <TextField
-            label="Last Name"
+            label={t("lastName")}
             fullWidth
             value={formData.lastName}
             onChange={handleChange("lastName")}
@@ -426,31 +432,30 @@ export default function RegisterPage({ setAlertInfo }) {
           <FormControlLabel
             control={
               <Checkbox
-                checked={formData.isAnonymous}
-                onChange={(e) =>
-                  setFormData({ ...formData, isAnonymous: e.target.checked })
-                }
+                checked={formData.anonymity}
+                onChange={handleChange("anonymity")}
               />
             }
-            label="Appear Hidden"
+            label={t("appearHidden")}
           />
-          <Tooltip title="Your real name won't be shown in public areas of the platform.">
+          <Tooltip title={t("hiddenTooltip")}>
             <InfoOutlinedIcon color="action" />
           </Tooltip>
         </Box>
 
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
-            label="Birth Date"
+            label={t("birthDate")}
             value={formData.birthDate || dayjs().subtract(8, "year")}
-            onChange={(newValue) =>
-              setFormData({ ...formData, birthDate: newValue })
-            }
+            onChange={handleChange("birthDate")}
             format="DD/MM/YYYY"
             slotProps={{
               textField: {
                 fullWidth: true,
                 required: true,
+                error: formErrors.birthDate.error,
+                helperText: formErrors.birthDate.helperText,
+                onChange: handleChange("birthDate"),
               },
             }}
             defaultValue={dayjs().subtract(8, "year")}
@@ -460,12 +465,12 @@ export default function RegisterPage({ setAlertInfo }) {
         </LocalizationProvider>
 
         <TextField
-          label="Phone Number"
+          label={t("phoneNumber")}
           placeholder="05X-XXXXXXX"
           fullWidth
           value={formData.phoneNum}
           onChange={handlePhoneChange}
-          helperText="Note: Phone number is optional. Should be in the format 05X-XXXXXXX."
+          helperText={t("phoneNumberHelperText")}
           inputProps={{
             inputMode: "tel",
             maxLength: 11,
@@ -473,7 +478,7 @@ export default function RegisterPage({ setAlertInfo }) {
         />
 
         <TextField
-          label="Display Name"
+          label={t("displayName")}
           fullWidth
           value={formData.displayName}
           onChange={handleChange("displayName")}
@@ -488,7 +493,7 @@ export default function RegisterPage({ setAlertInfo }) {
           fullWidth
           sx={{ mt: 2, width: 200, height: 50 }}
         >
-          Finish Registration
+          {t("finishRegisration")}
         </Button>
       </Box>
     </Paper>

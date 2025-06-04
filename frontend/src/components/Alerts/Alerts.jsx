@@ -1,7 +1,10 @@
 import React from "react";
 import { Alert, AlertTitle, Box } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 const Alerts = ({ alertInfo }) => {
+  const { t } = useTranslation();
+
   return (
     <Box
       sx={{
@@ -26,7 +29,7 @@ const Alerts = ({ alertInfo }) => {
           }}
         >
           <AlertTitle sx={{ fontWeight: "bold", fontSize: 18 }}>
-            {alertInfo.type.charAt(0).toUpperCase() + alertInfo.type.slice(1)}
+            {t(`alert.${alertInfo.type}`)}
           </AlertTitle>
           {alertInfo.message}
         </Alert>

@@ -11,12 +11,9 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 	
-	@ExceptionHandler(ValidationException.class)
-	public ResponseEntity<Map<String, Object>> handleValidationException(ValidationException ex) {
-		return ResponseEntity.badRequest().body(Map.of(
-				"result", "error",
-				"info", ex.getErrors()
-		));
+	@ExceptionHandler (ValidationException.class)
+	public ResponseEntity<Map<String, Object>> handleValidationException (ValidationException ex) {
+		return ResponseEntity.badRequest().body(Map.of("result", "error", "info", ex.getErrors()));
 	}
 	
 	@ExceptionHandler (Exception.class)

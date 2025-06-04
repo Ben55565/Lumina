@@ -62,13 +62,13 @@ public class UserServiceImpl implements UserService {
 		}
 		else {
 			if (isEmailExists(user.getEmail())) {
-					errors.put("email", "Email already in use");
+				errors.put("email", "Email already in use");
 			}
 			if (isDisplayNameExists(user.getDisplayName())) {
-					errors.put("displayName", "Display name already in use");
+				errors.put("displayName", "Display name already in use");
 			}
 			if (isPhoneNumExists(user.getPhoneNum()) && user.getPhoneNum() != null) {
-					errors.put("phoneNum", "Phone number already in use");
+				errors.put("phoneNum", "Phone number already in use");
 			}
 			if (! errors.isEmpty()) {
 				System.out.println(errors);
@@ -82,6 +82,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User read (int id) {
 		return userRepository.findById(id).orElse(null);
+	}
+	
+	@Override
+	public User readByEmail (String email) {
+		return userRepository.findByEmail(email).orElse(null);
 	}
 	
 	@Override

@@ -8,6 +8,8 @@ public interface UserService {
 	
 	User read (int id);
 	
+	User readByEmail(String email);
+	
 	void delete (int id);
 	
 	boolean isEmailExists (String email);

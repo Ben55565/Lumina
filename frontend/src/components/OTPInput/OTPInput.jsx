@@ -3,6 +3,7 @@ import { Box, TextField } from "@mui/material";
 
 export default function CodeInput({ value, onChange }) {
   const inputsRef = useRef([]);
+  const isRTL = document.documentElement.dir === "rtl";
 
   const handleInputChange = (index) => (e) => {
     const val = e.target.value;
@@ -42,41 +43,44 @@ export default function CodeInput({ value, onChange }) {
 
   const handlePaste = (e) => {
     e.preventDefault();
-    const paste = e.clipboardData.getData("text").slice(0, 6);
-    if (!/^[0-9]+$/.test(paste)) return;
+    const pasted = e.clipboardData.getData("text").slice(0, 6);
+    if (!/^[0-9]+$/.test(pasted)) return;
 
     const newValue = value.split("");
     for (let i = 0; i < 6; i++) {
-      newValue[i] = paste[i] || "";
+      newValue[i] = pasted[i] || "";
     }
     onChange(newValue.join(""));
 
-    const lastFilledIndex = paste.length >= 6 ? 5 : paste.length;
-    inputsRef.current[lastFilledIndex]?.focus();
+    const lastIndex = pasted.length >= 6 ? 5 : pasted.length;
+    inputsRef.current[lastIndex]?.focus();
   };
+
+  const inputs = [...Array(6)].map((_, i) => (
+    <TextField
+      key={i}
+      inputRef={(el) => (inputsRef.current[i] = el)}
+      inputProps={{
+        maxLength: 1,
+        style: {
+          direction: "ltr",
+          textAlign: "center",
+          fontSize: "24px",
+          padding: "10px",
+          width: "40px",
+        },
+        inputMode: "numeric",
+      }}
+      value={value[i] || ""}
+      onChange={handleInputChange(i)}
+      onKeyDown={handleKeyDown(i)}
+      onPaste={handlePaste}
+    />
+  ));
 
   return (
     <Box display="flex" gap={1} justifyContent="center">
-      {[...Array(6)].map((_, i) => (
-        <TextField
-          key={i}
-          inputRef={(el) => (inputsRef.current[i] = el)}
-          inputProps={{
-            maxLength: 1,
-            style: {
-              textAlign: "center",
-              fontSize: "24px",
-              padding: "10px",
-              width: "40px",
-            },
-            inputMode: "numeric",
-          }}
-          value={value[i] || ""}
-          onChange={handleInputChange(i)}
-          onKeyDown={handleKeyDown(i)}
-          onPaste={handlePaste}
-        />
-      ))}
+      {isRTL ? inputs.slice().reverse() : inputs}
     </Box>
   );
 }

@@ -6,16 +6,17 @@ import {
   Navigate,
 } from "react-router-dom";
 import Box from "@mui/material/Box";
+import { useTheme } from "@mui/material/styles";
 
-import HomePage from "./pages/HomePage/HomePage.jsx";
+import AboutPage from "./pages/AboutPage/AboutPage.jsx";
 import Header from "./components/Header/Header.jsx";
 import Footer from "./components/Footer/Footer.jsx";
 import DrawerComp from "./components/DrawerComp/DrawerComp.jsx";
 import RegisterPage from "./pages/RegisterPage/RegisterPage.jsx";
 import LoginPage from "./pages/LoginPage/LoginPage.jsx";
 import Alerts from "./components/Alerts/Alerts.jsx";
-
-import { useTheme } from "@mui/material/styles";
+import { LoadingProvider } from "./context/LoadingContext.jsx";
+import GlobalLoader from "./components/GlobalLoader/GlobalLoader.jsx";
 
 function App({ toggleTheme, mode, setMode }) {
   const [ShowDrawer, setShowDrawer] = useState(false);
@@ -29,46 +30,49 @@ function App({ toggleTheme, mode, setMode }) {
   const theme = useTheme();
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        overflowX: "hidden",
-        backgroundColor: "background.default",
-        minHeight: "100vh",
-      }}
-    >
-      <Router>
-        <DrawerComp
-          ShowDrawer={ShowDrawer}
-          mode={mode}
-          setMode={setMode}
-          toggleTheme={toggleTheme}
-        />
-        <Box
-          sx={{
-            flexGrow: 1,
-            ml: ShowDrawer ? `${theme.layout.drawerWidth}px` : 0,
-            transition: "margin-left 0.3s ease",
-            width: "100%",
-          }}
-        >
-          <Header ShowDrawer={ShowDrawer} setShowDrawer={setShowDrawer} />
+    <LoadingProvider>
+      <Box
+        sx={{
+          display: "flex",
+          overflowX: "hidden",
+          backgroundColor: "background.default",
+          minHeight: "100vh",
+        }}
+      >
+        <GlobalLoader />
+        <Router>
+          <DrawerComp
+            ShowDrawer={ShowDrawer}
+            mode={mode}
+            setMode={setMode}
+            toggleTheme={toggleTheme}
+          />
+          <Box
+            sx={{
+              flexGrow: 1,
+              ml: ShowDrawer ? `${theme.layout.drawerWidth}px` : 0,
+              transition: "margin-left 0.3s ease",
+              width: "100%",
+            }}
+          >
+            <Header ShowDrawer={ShowDrawer} setShowDrawer={setShowDrawer} />
 
-          <Routes>
-            <Route path="/" element={<Navigate to="/home" replace />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route
-              path="/register"
-              element={<RegisterPage setAlertInfo={setAlertInfo} />}
-            />
-            <Route path="/login" element={<LoginPage />} />
-          </Routes>
+            <Routes>
+              <Route path="/" element={<Navigate to="/about" replace />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route
+                path="/register"
+                element={<RegisterPage setAlertInfo={setAlertInfo} />}
+              />
+              <Route path="/login" element={<LoginPage />} />
+            </Routes>
 
-          <Alerts alertInfo={alertInfo} />
-          <Footer />
-        </Box>
-      </Router>
-    </Box>
+            <Alerts alertInfo={alertInfo} />
+            <Footer />
+          </Box>
+        </Router>
+      </Box>
+    </LoadingProvider>
   );
 }
 

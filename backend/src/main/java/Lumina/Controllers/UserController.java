@@ -5,12 +5,11 @@ import Lumina.Services.MailService;
 import Lumina.Services.UserService;
 import Lumina.Services.VerificationCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
@@ -25,19 +24,20 @@ public class UserController {
 	private VerificationCodeService verificationCodeService;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private MessageSource messageSource;
 	
-	@PostMapping ("/email-verification")
-	public ResponseEntity<Map<String, String>> emailVerification (@RequestBody Map<String, String> request) {
-		String email = request.get("email");
+	@GetMapping ("/email-verification")
+	public ResponseEntity<Map<String, String>> emailVerification (@RequestParam String email, Locale locale) {
 		String code = generateCode();
-		boolean sentSuccecfully = mailService.sendVerificationEmail(email, code);
+		boolean sentSuccessfully = mailService.sendVerificationEmail(email, code);
 		
-		if (sentSuccecfully) {
+		if (sentSuccessfully) {
 			verificationCodeService.saveCode(email, code);
-			return ResponseEntity.ok().body(Map.of("result", "success", "info", "Verification email has been sent succecfully!"));
+			return ResponseEntity.ok().body(Map.of("result", "success", "info", messageSource.getMessage("verificationMailSuccess", null, locale)));
 		}
 		else {
-			return ResponseEntity.status(500).body(Map.of("result", "error", "info", "There was an error sending the email, try again later"));
+			return ResponseEntity.status(500).body(Map.of("result", "error", "info", messageSource.getMessage("verificationMailError", null, locale)));
 		}
 	}
 	
@@ -46,35 +46,47 @@ public class UserController {
 		return String.valueOf(code);
 	}
 	
-	@PostMapping ("/otp-verification")
-	public ResponseEntity<Map<String, String>> otpConfirmation (@RequestBody Map<String, String> request) {
-		String email = request.get("email");
-		String inputCode = request.get("code");
+	@GetMapping ("/otp-verification")
+	public ResponseEntity<Map<String, String>> otpConfirmation (@RequestParam String email, @RequestParam String inputCode, Locale locale) {
 		int result = verificationCodeService.verifyCode(email, inputCode);
-		System.out.println(result);
 		if (result == 1) {
-			return ResponseEntity.ok().body(Map.of("result", "success", "info", "OTP has been confirmed!"));
+			return ResponseEntity.ok().body(Map.of("result", "success", "info", messageSource.getMessage("otpConfirmed", null, locale)));
 		}
 		else if (result == 0) {
-			return ResponseEntity.ok().body(Map.of("result", "warning", "info", "Code has been expired, Please generate a new one."));
+			return ResponseEntity.ok().body(Map.of("result", "warning", "info", messageSource.getMessage("otpExpired", null, locale)));
 		}
 		else {
-			return ResponseEntity.ok().body(Map.of("result", "error", "info", "Incorrect code has been entered. please check and try again."));
+			return ResponseEntity.ok().body(Map.of("result", "error", "info", messageSource.getMessage("otpIncorrect", null, locale)));
 		}
 		
 	}
 	
 	@PostMapping ("/complete-profile")
-	public ResponseEntity<Map<String, String>> completeProfile (@RequestBody User user) {
+	public ResponseEntity<Map<String, String>> completeProfile (@RequestBody User user, Locale locale) {
 		if (Objects.equals(user.getPhoneNum(), "")) {
 			user.setPhoneNum(null);
 		}
-		User saved = userService.createOrUpdate(user, false);
-		return ResponseEntity.ok(Map.of(
-				"result", "success",
-				"info", "User has been created!"
-		));
+		userService.createOrUpdate(user, false);
+		return ResponseEntity.ok(Map.of("result", "success", "info", messageSource.getMessage("userCreated", null, locale)));
 		
-		
+	}
+	
+	@GetMapping ("/check-email")
+	public boolean isEmailExistsInDB (@RequestParam String email) {
+		return userService.isEmailExists(email);
+	}
+	
+	@GetMapping ("user-login")
+	public ResponseEntity<Map<String, String>> userLogin(@RequestParam String email, @RequestParam String password) {
+		User found = userService.readByEmail(email);
+		if (found == null) {
+			return ResponseEntity.ok(Map.of("result", "error", "info", "User not found"));
+		} else {
+			if (!userService.isPasswordValid(password, found.getId())) {
+				return ResponseEntity.ok(Map.of("result", "warning", "info", "Email or password incorrect"));
+			} else {
+				return ResponseEntity.ok(Map.of("result", "success", "info", "Logged in successfuly"));
+			}
+		}
 	}
 }

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import BaseAccountForm from "../../components/BaseAccountForm/BaseAccountForm.jsx";
 import { useTranslation } from "react-i18next";
+import api from "../../api/api.js";
+import { validateEmail } from "../../utils/validations.js";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -9,24 +11,47 @@ export default function LoginPage() {
     password: { error: false, helperText: "" },
   });
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const handleChange = (field) => (e) => {
-    setFormData({ ...formData, [field]: e.target.value });
-    validations(formData);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Logging in:", formData);
-  };
-
-  const validations = (data) => {
-    const errors = {
-      email: { error: false, helperText: "" },
+    const newFormErrors = { email: { error: false, helperText: "" } };
+    const newFormData = {
+      ...formData,
+      [field]: e.target.value,
     };
-    // Should check the email and password to the db when the call is going though
-    setFormErrors(errors);
+    if (field === "email") {
+      newFormErrors.email = validateEmail({
+        data: { email: e.target.value },
+        t,
+      });
+    }
+
+    setFormData(newFormData);
+    setFormErrors(newFormErrors);
+
+    return !newFormErrors.email.error;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.get(
+        "/user-login",
+        {
+          params: {
+            email: formData.email,
+            password: formData.password,
+          },
+        },
+        {
+          headers: {
+            "Accept-Language": i18n.language,
+          },
+        }
+      );
+      console.log("Login response:", res);
+    } catch (err) {}
+    console.log("Logging in:", formData);
   };
 
   return (

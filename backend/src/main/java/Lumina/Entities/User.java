@@ -29,6 +29,10 @@ public class User {
 	@Column (name = "creation_date", updatable = false, insertable = false)
 	private LocalDate createdAt;
 	
+	public User () {
+	
+	}
+	
 	public User (String email, String password, String name, boolean isAnonymous, LocalDate birthDate, String phoneNum, String displayName) {
 		this.email = email;
 		this.password = password;
