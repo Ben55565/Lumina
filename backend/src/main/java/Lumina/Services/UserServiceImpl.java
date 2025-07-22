@@ -5,10 +5,12 @@ import Lumina.Exceptions.ValidationException;
 import Lumina.Repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -53,7 +55,7 @@ public class UserServiceImpl implements UserService {
 			}
 			
 			if (! errors.isEmpty()) {
-				throw new ValidationException(errors);
+				throw new ValidationException(errors, HttpStatus.UNAUTHORIZED);
 			}
 			String hashedPassword = passwordEncoder.encode(user.getPassword());
 			user.setPassword(hashedPassword);
@@ -72,7 +74,7 @@ public class UserServiceImpl implements UserService {
 			}
 			if (! errors.isEmpty()) {
 				System.out.println(errors);
-				throw new ValidationException(errors);
+				throw new ValidationException(errors, HttpStatus.UNAUTHORIZED);
 			}
 			
 			return userRepository.save(new User(user.getEmail(), passwordEncoder.encode(user.getPassword()), user.getName(), user.isAnonymous(), user.getBirthDate(), user.getPhoneNum(), user.getDisplayName()));
@@ -114,6 +116,11 @@ public class UserServiceImpl implements UserService {
 	public boolean isPasswordValid (String rawPassword, int userId) {
 		String hashedPassword = read(userId).getPassword();
 		return passwordEncoder.matches(rawPassword, hashedPassword);
+	}
+	
+	@Override
+	public List<User> getAll () {
+		return userRepository.findAll();
 	}
 	
 }

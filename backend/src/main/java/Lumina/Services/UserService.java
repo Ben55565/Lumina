@@ -2,6 +2,8 @@ package Lumina.Services;
 
 import Lumina.Entities.User;
 
+import java.util.List;
+
 public interface UserService {
 	
 	User createOrUpdate (User user, boolean isUpdate);
@@ -19,4 +21,6 @@ public interface UserService {
 	boolean isPhoneNumExists (String phoneNum);
 	
 	boolean isPasswordValid (String rawPassword, int userId);
+	
+	List<User> getAll ();
 }

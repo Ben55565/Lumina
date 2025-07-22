@@ -92,7 +92,14 @@ export default function RegisterPage({ setAlertInfo }) {
         setAlertInfo({ show: false });
       }, 3000);
     } catch (err) {
-      console.error("Registration failed:", err.response?.data || err.message);
+      setAlertInfo({
+        show: true,
+        type: err.response.data.result,
+        message: err.response.data.info,
+      });
+      setTimeout(() => {
+        setAlertInfo({ show: false });
+      }, 3000);
     }
   };
 
@@ -116,10 +123,14 @@ export default function RegisterPage({ setAlertInfo }) {
         }
       }, 3000);
     } catch (err) {
-      console.error(
-        "OTP verification failed:",
-        err.response?.data || err.message
-      );
+      setAlertInfo({
+        show: true,
+        type: err.response.data.result,
+        message: err.response.data.info,
+      });
+      setTimeout(() => {
+        setAlertInfo({ show: false });
+      }, 3000);
     }
   };
 
@@ -132,7 +143,7 @@ export default function RegisterPage({ setAlertInfo }) {
           password: formData.password,
           name: formData.firstName.trim() + " " + formData.lastName.trim(),
           displayName: formData.displayName,
-          birthDate: formData.birthDate,
+          birthDate: formData.birthdate,
           phoneNum: formData.phoneNum,
           anonymity: formData.anonymity,
         },
@@ -152,6 +163,14 @@ export default function RegisterPage({ setAlertInfo }) {
         navigate("/login");
       }, 3000);
     } catch (err) {
+      setAlertInfo({
+        show: true,
+        type: err.response.data.result,
+        message: err.response.data.info,
+      });
+      setTimeout(() => {
+        setAlertInfo({ show: false });
+      }, 3000);
       const errorData = err.response?.data;
 
       const newErrors = {
@@ -199,6 +218,7 @@ export default function RegisterPage({ setAlertInfo }) {
           if (!res.data) {
             sendVerificationEmail();
           } else {
+            // TODO: maybe move the message to the backend
             setAlertInfo({
               show: true,
               type: "error",
@@ -209,10 +229,14 @@ export default function RegisterPage({ setAlertInfo }) {
             }, 3000);
           }
         } catch (err) {
-          console.error(
-            "Email check failed:",
-            err.response?.data || err.message
-          );
+          setAlertInfo({
+            show: true,
+            type: err.response.data.result,
+            message: err.response.data.info,
+          });
+          setTimeout(() => {
+            setAlertInfo({ show: false });
+          }, 3000);
         }
       }
     } else if (step === 1) {
@@ -240,7 +264,6 @@ export default function RegisterPage({ setAlertInfo }) {
       ...formData,
       [field]: value,
     };
-
     setFormData(newFormData);
 
     if (
@@ -253,13 +276,21 @@ export default function RegisterPage({ setAlertInfo }) {
 
   const validate = (data, isSubmit = false) => {
     const errors = {
-      email: validateEmail({ data, t }),
-      password: validatePassword({ data }),
-      confirmPassword: validateMatchingPasswords({ data, t }),
+      email: validateEmail({ email: data.email, t }),
+      password: validatePassword({ password: data.password }),
+      confirmPassword: validateMatchingPasswords({
+        password: data.password,
+        confirmPassword: data.confirmPassword,
+        t,
+      }),
       firstName: { error: false, helperText: "" },
       lastName: { error: false, helperText: "" },
       displayName: { error: false, helperText: "" },
-      birthDate: { error: false, helperText: "" },
+      birthDate: validateBirthDate({
+        birthDate: data.birthdate,
+        t,
+        dayjs,
+      }),
     };
     if (step === 2) {
       const { firstName, lastName } = data;
@@ -279,10 +310,10 @@ export default function RegisterPage({ setAlertInfo }) {
         });
 
       if (isSubmit || data.displayName?.trim())
-        errors.displayName = validateDisplayName({ data, t });
-
-      if (isSubmit || data.birthDate)
-        errors.birthDate = validateBirthDate({ data, t, dayjs });
+        errors.displayName = validateDisplayName({
+          displayName: data.displayName,
+          t,
+        });
     }
 
     const hasError = Object.values(errors).some(

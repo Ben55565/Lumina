@@ -1,5 +1,4 @@
-export const validateEmail = ({ data, t }) => {
-  const { email } = data;
+export const validateEmail = ({ email, t }) => {
   const errors = { error: false, helperText: "" };
 
   if (
@@ -19,8 +18,7 @@ export const validateEmail = ({ data, t }) => {
   return errors;
 };
 
-export const validatePassword = ({ data }) => {
-  const { password } = data;
+export const validatePassword = ({ password }) => {
   const result = {
     length: password.length >= 6,
     lowercase: /[a-z]/.test(password),
@@ -36,8 +34,7 @@ export const validatePassword = ({ data }) => {
   };
 };
 
-export const validateMatchingPasswords = ({ data, t }) => {
-  const { password, confirmPassword } = data;
+export const validateMatchingPasswords = ({ password, confirmPassword, t }) => {
   let errors = { error: false, helperText: "" };
   if (password !== confirmPassword && password && confirmPassword) {
     errors = {
@@ -61,8 +58,7 @@ export const validateName = ({ name, t, nameField }) => {
   return errors;
 };
 
-export const validateDisplayName = ({ data, t }) => {
-  const { displayName } = data;
+export const validateDisplayName = ({ displayName, t }) => {
   let errors = { error: false, helperText: "" };
 
   if (!displayName.trim() || displayName.length < 2) {
@@ -70,7 +66,7 @@ export const validateDisplayName = ({ data, t }) => {
       error: true,
       helperText: t("invalidDisplayNameStracture"),
     };
-  } else if (/[^a-zA-Z0-9\s]/.test(data.displayName)) {
+  } else if (/[^a-zA-Z0-9\s]/.test(displayName)) {
     errors = {
       error: true,
       helperText: t("invalidDisplayNameCharacters"),
@@ -80,8 +76,7 @@ export const validateDisplayName = ({ data, t }) => {
   return errors;
 };
 
-export const validateBirthDate = ({ data, t, dayjs }) => {
-  const { birthDate } = data;
+export const validateBirthDate = ({ birthDate, t, dayjs }) => {
   let errors = { error: false, helperText: "" };
   if (
     !birthDate ||

@@ -1,9 +1,11 @@
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
+import { useTranslation } from "react-i18next";
 
 export default function Footer() {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Box
@@ -32,7 +34,7 @@ export default function Footer() {
             fontStyle: "italic",
           }}
         >
-          Connect Hearts - Heal together
+          {t("footer.title")}
         </Typography>
         <Typography
           level="title-sm"
@@ -40,7 +42,7 @@ export default function Footer() {
           color="text.secondary"
           sx={{ fontSize: "1rem" }}
         >
-          Ben Daniels @ {new Date().getFullYear()}
+          {t("footer.name")} @ {new Date().getFullYear()}
         </Typography>
       </Box>
     </Box>

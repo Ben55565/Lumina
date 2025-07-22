@@ -2,7 +2,7 @@ import { useLoading } from "../../context/LoadingContext";
 import { Backdrop, CircularProgress, Typography } from "@mui/material";
 
 export default function GlobalLoader() {
-  const { loading } = useLoading();
+  const { loading, loadingText } = useLoading();
 
   return (
     <Backdrop
@@ -17,7 +17,7 @@ export default function GlobalLoader() {
       open={loading}
     >
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Loading...
+        {loadingText}
       </Typography>
       <CircularProgress color="inherit" />
     </Backdrop>

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { setLoadingExternal } from "../context/LoadingContext";
+import i18n from "../i18n";
 
 const api = axios.create({
   baseURL: "http://localhost:8080/api",
@@ -8,17 +9,18 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("jwtToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    setLoadingExternal(true);
+    config.headers["Accept-Language"] = i18n.language;
+    setLoadingExternal(true, i18n.t("loadingMessage"));
     return config;
   },
   (error) => {
     setLoadingExternal(false);
     return Promise.reject(error);
-  },
+  }
 );
 
 api.interceptors.response.use(
@@ -28,9 +30,8 @@ api.interceptors.response.use(
   },
   (error) => {
     setLoadingExternal(false);
-    console.error("API error:", error.response?.data || error.message);
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;
