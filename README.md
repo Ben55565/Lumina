@@ -53,5 +53,5 @@ Lumina is a social platform designed to provide a safe, empathetic, and supporti
 ## Contact
 
 Project maintained by Ben Daniels  
-Email: ben.daniels@example.com  
+Email: cisbhtkx@gmail.com  
 GitHub: [github.com/Ben55565/Lumina](https://github.com/Ben55565/Lumina)
