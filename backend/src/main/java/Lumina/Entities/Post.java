@@ -1,9 +1,9 @@
 package Lumina.Entities;
 
+import Lumina.DTO.PostDTO;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
 
 @Document(collection = "post")
 public class Post {
@@ -20,6 +20,8 @@ public class Post {
 	
 	public Post () {
 	}
+	
+	
 	
 	public Post (String userId, String title, String content, String[] tags, Visibility visibility, String mediaUrl, long timeStamp) {
 		this.userId = userId;
@@ -93,6 +95,14 @@ public class Post {
 	
 	public void setTimeStamp (long timeStamp) {
 		this.timeStamp = timeStamp;
+	}
+	
+	public void setFieldsValues (PostDTO post) {
+		this.title = post.getTitle();
+		this.visibility = post.getVisibility();
+		this.tags = post.getTags();
+		this.content = post.getContent();
+		this.mediaUrl = post.getMediaUrl();
 	}
 	
 	@Override

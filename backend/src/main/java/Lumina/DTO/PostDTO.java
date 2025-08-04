@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 public class PostDTO {
 	
+	private String id;
 	private String title;
 	private Visibility visibility;
 	private String content;
@@ -13,6 +14,21 @@ public class PostDTO {
 	private String[] tags;
 	private long timeStamp;
 	private String userId;
+	
+	public PostDTO () {
+	
+	}
+	
+	public PostDTO (String id, String title, Visibility visibility, String content, String mediaUrl, String[] tags, long timeStamp, String userId) {
+		this.id = id;
+		this.title = title;
+		this.visibility = visibility;
+		this.content = content;
+		this.mediaUrl = mediaUrl;
+		this.tags = tags;
+		this.timeStamp = timeStamp;
+		this.userId = userId;
+	}
 	
 	public PostDTO (String title, Visibility visibility, String content, String mediaUrl, String[] tags, String userId) {
 		this.title = title;
@@ -78,6 +94,14 @@ public class PostDTO {
 	
 	public void setUserId (String userId) {
 		this.userId = userId;
+	}
+	
+	public String getId () {
+		return id;
+	}
+	
+	public void setId (String id) {
+		this.id = id;
 	}
 	
 	@Override

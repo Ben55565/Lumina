@@ -218,7 +218,6 @@ export default function RegisterPage({ setAlertInfo }) {
           if (!res.data) {
             sendVerificationEmail();
           } else {
-            // TODO: maybe move the message to the backend
             setAlertInfo({
               show: true,
               type: "error",

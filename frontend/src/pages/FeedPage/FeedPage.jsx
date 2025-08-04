@@ -8,13 +8,18 @@ import SpeedDialIcon from "@mui/material/SpeedDialIcon";
 
 import PostForm from "../../components/PostForm/PostForm.jsx";
 
-// TODO: need to handle that if the user uploaded a post, it should be visible to him with his details only
-// (and not anonymous, and indicate that it is his post and showing as anonymous)
-
-export default function FeedPage({ userId }) {
+export default function FeedPage({ userId, setAlertInfo }) {
   const [posts, setPosts] = useState([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    visibility: "",
+    content: "",
+    mediaUrl: "",
+    tags: [],
+    tagInput: "",
+  });
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -46,9 +51,51 @@ export default function FeedPage({ userId }) {
     try {
       const res = await api.post("/feed/new-post", newPostData);
       console.log("Post created successfully:", res.data);
-      // TODO: use alert to notify the user of success, reload the feed, or update the state to include the new post
+      setAlertInfo({
+        show: true,
+        type: res.data.result,
+        message: res.data.info,
+      });
+      setTimeout(() => {
+        setAlertInfo({ show: false });
+        window.location.reload();
+      }, 3000);
     } catch (error) {
       console.error("Error creating post:", error);
+      setAlertInfo({
+        show: true,
+        type: error.data.result,
+        message: error.data.info,
+      });
+      setTimeout(() => {
+        setAlertInfo({ show: false });
+      }, 3000);
+    }
+  };
+
+  const handleDeletePost = async (postId) => {
+    try {
+      const res = await api.delete(`/feed/delete-post/${postId}`);
+      console.log("Post deleted successfully:", res.data);
+      setAlertInfo({
+        show: true,
+        type: res.data.result,
+        message: res.data.info,
+      });
+      setTimeout(() => {
+        setAlertInfo({ show: false });
+        window.location.reload();
+      }, 3000);
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      setAlertInfo({
+        show: true,
+        type: error.data.result,
+        message: error.data.info,
+      });
+      setTimeout(() => {
+        setAlertInfo({ show: false });
+      }, 3000);
     }
   };
 
@@ -57,7 +104,14 @@ export default function FeedPage({ userId }) {
       {posts.length > 0 ? (
         <Box sx={{ my: 15 }}>
           {posts.map((post, i) => (
-            <PostCard key={i} post={post} />
+            <PostCard
+              key={i}
+              post={post}
+              userId={userId}
+              setFormOpen={setFormOpen}
+              setFormData={setFormData}
+              handleDeletePost={handleDeletePost}
+            />
           ))}
           <SpeedDial
             ariaLabel="Add Post"
@@ -69,6 +123,8 @@ export default function FeedPage({ userId }) {
             open={formOpen}
             onClose={() => setFormOpen(false)}
             onSubmit={handleCreatePost}
+            formData={formData}
+            setFormData={setFormData}
           />
         </Box>
       ) : !isAuthenticated ? (
@@ -92,6 +148,8 @@ export default function FeedPage({ userId }) {
             open={formOpen}
             onClose={() => setFormOpen(false)}
             onSubmit={handleCreatePost}
+            formData={formData}
+            setFormData={setFormData}
           />
         </Box>
       )}

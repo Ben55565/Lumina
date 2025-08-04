@@ -10,15 +10,28 @@ import {
 } from "@mui/material";
 import TagIcon from "@mui/icons-material/Tag";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
 import { useTranslation } from "react-i18next";
 import { stringAvatar, isRTL } from "../../utils/helperFunctions.js";
+import DeletePostDialog from "../DeletePostDialog/DeletePostDialog.jsx";
 import api from "../../api/api.js";
 
-const PostCard = ({ post }) => {
+const PostCard = ({
+  post,
+  userId,
+  setFormOpen,
+  setFormData,
+  handleDeletePost,
+}) => {
   const [userInfo, setUserInfo] = useState({
     name: "Anonymous User",
     displayName: "",
   });
+
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { t } = useTranslation();
 
@@ -51,6 +64,36 @@ const PostCard = ({ post }) => {
       }
     : stringAvatar(userInfo.name);
 
+  const userControls = () => {
+    return (
+      <Box sx={{ display: "flex", alignItems: "center", gap: 2, ml: 2 }}>
+        <Tooltip title={t("userPostControls.deletePost")} arrow>
+          <IconButton onClick={() => setConfirmDelete(true)}>
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
+        {confirmDelete && (
+          <DeletePostDialog
+            open={confirmDelete}
+            setOpen={setConfirmDelete}
+            onClose={() => setConfirmDelete(false)}
+            onConfirm={() => handleDeletePost(post.id)}
+          />
+        )}
+        <Tooltip title={t("userPostControls.editPost")} arrow>
+          <IconButton
+            onClick={() => {
+              setFormOpen(true);
+              setFormData(post);
+            }}
+          >
+            <EditIcon />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    );
+  };
+
   return (
     <Box>
       <Card
@@ -65,26 +108,27 @@ const PostCard = ({ post }) => {
           mx: "auto",
           display: "flex",
           flexDirection: "column",
-          height: 500,
+          height: 570,
         }}
       >
+        {/* TODO: make this conditional */}
+        {String(post.userId) === String(userId) ? userControls() : null}
         <Box sx={{ mb: 4, textAlign: "center" }}>
           <Typography variant="h5" fontWeight="bold" component="h5">
             {post.title}
           </Typography>
         </Box>
 
-        <Box
-          sx={{
-            flexGrow: 1,
-            overflowY: "auto",
-            whiteSpace: "pre-wrap",
-            mb: 2,
-            direction: contentDirection,
-            textAlign: contentDirection === "rtl" ? "right" : "left",
-          }}
-        >
-          {post.content}
+        <Box sx={{ mx: 2, mb: 2, flexGrow: 1, overflowY: "auto" }}>
+          <Box
+            dir={contentDirection}
+            sx={{
+              whiteSpace: "pre-wrap",
+              display: "block",
+            }}
+          >
+            {post.content}
+          </Box>
         </Box>
 
         {post.mediaUrl && (
@@ -163,7 +207,6 @@ const PostCard = ({ post }) => {
               </Typography>
             </Box>
           </Box>
-
           <Box
             sx={{
               display: "flex",

@@ -16,12 +16,12 @@ export default function RestrictedAccess({ title, message }) {
         margin: "auto",
         mt: 8,
         borderRadius: 4,
-        backgroundColor: "#f8f9fa",
+        backgroundColor: "background.paper",
       }}
     >
       <Box display="flex" flexDirection="column" alignItems="center">
         <LockOutlinedIcon color="error" sx={{ fontSize: 60, mb: 2 }} />
-        <Typography variant="h5" gutterBottom>
+        <Typography variant="h5" gutterBottom color="text.primary">
           {t(title)}
         </Typography>
         <Typography variant="body1" color="text.secondary">

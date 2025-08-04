@@ -1,5 +1,6 @@
 import * as React from "react";
 import Button from "@mui/material/Button";
+import Box from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -7,51 +8,51 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function DialogBox({
-  showDialogBox,
-  setshowDialogBox,
-  navigateDir,
-  title,
-  message,
-  buttonText,
+export default function DeletePostDialog({
+  open,
+  setOpen,
+  onClose,
+  onConfirm,
 }) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-
-  const handleClose = () => {
-    setshowDialogBox(false);
-    navigate(navigateDir);
-  };
 
   return (
-    <React.Fragment>
+    <Box>
       <Dialog
-        open={showDialogBox}
+        open={open}
         slots={{
           transition: Transition,
         }}
         keepMounted
-        onClose={() => setshowDialogBox(false)}
-        aria-describedby="alert-dialog-slide-description"
+        onClose={() => setOpen(false)}
+        PaperProps={{
+          sx: {
+            width: "70%",
+            borderRadius: 2,
+            boxShadow: 4,
+          },
+        }}
       >
-        <DialogTitle>{t(title)}</DialogTitle>
+        <DialogTitle>{t("postDeleteDialog.title")}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
-            {t(message)}
+            {t("postDeleteDialog.message")}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} sx={{ width: "30%" }}>
-            {t(buttonText)}
+          <Button onClick={() => setOpen(false)} sx={{ width: 150 }}>
+            {t("postDeleteDialog.cancelButton")}
+          </Button>
+          <Button onClick={onConfirm} sx={{ width: 150 }}>
+            {t("postDeleteDialog.confirmButton")}
           </Button>
         </DialogActions>
       </Dialog>
-    </React.Fragment>
+    </Box>
   );
 }

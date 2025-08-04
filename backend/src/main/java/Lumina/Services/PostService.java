@@ -12,6 +12,8 @@ public interface PostService {
 	
 	public Post save (Post post);
 	
-	public void delete (String id);
+	public boolean delete (String id);
+	
+	public Post findById (String id);
 	
 }

@@ -148,13 +148,21 @@ function App({ toggleTheme, mode, setMode }) {
                   <LoginPage setAlertInfo={setAlertInfo} setJwt={setJwt} />
                 }
               />
-              <Route path="/feed" element={<FeedPage userId={userId} />} />
+              <Route
+                path="/feed"
+                element={
+                  <FeedPage userId={userId} setAlertInfo={setAlertInfo} />
+                }
+              />
             </Routes>
             {showMessageForReLoggingIn && (
               <DialogBox
                 showDialogBox={showMessageForReLoggingIn}
                 setshowDialogBox={setShowMessageForReLoggingIn}
                 navigateDir="/login"
+                title="SessionExpiredDialogBox.title"
+                message="SessionExpiredDialogBox.message"
+                buttonText="SessionExpiredDialogBox.buttonText"
               />
             )}
             <Alerts alertInfo={alertInfo} />

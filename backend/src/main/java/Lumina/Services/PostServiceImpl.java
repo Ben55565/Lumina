@@ -29,7 +29,13 @@ public class PostServiceImpl implements PostService {
 	}
 	
 	@Override
-	public void delete (String id) {
+	public boolean delete (String id) {
 		postRepository.deleteById(id);
+		return postRepository.existsById(id);
+	}
+	
+	@Override
+	public Post findById (String id) {
+		return postRepository.findById(id).orElse(null);
 	}
 }

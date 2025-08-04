@@ -18,17 +18,9 @@ import {
 } from "@mui/material";
 import { Add, Close } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
+import { isRTL } from "../../utils/helperFunctions.js";
 
-const PostForm: React.FC<PostFormProps> = ({ open, onClose, onSubmit }) => {
-  const [formData, setFormData] = useState({
-    title: "",
-    visibility: "",
-    content: "",
-    mediaUrl: "",
-    tags: [],
-    tagInput: "",
-  });
-
+const PostForm = ({ open, onClose, onSubmit, formData, setFormData }) => {
   const [errors, setErrors] = useState({
     title: false,
     visibility: false,
@@ -36,10 +28,10 @@ const PostForm: React.FC<PostFormProps> = ({ open, onClose, onSubmit }) => {
 
   const { t } = useTranslation();
   const visibilityOptions = [
-    t("newPostForm.publicOption"),
-    t("newPostForm.privateOption"),
-    t("newPostForm.anonymousOption"),
-    t("newPostForm.friendsOption"),
+    { value: "PUBLIC", label: t("newPostForm.publicOption") },
+    { value: "PRIVATE", label: t("newPostForm.privateOption") },
+    { value: "ANONYMOUS", label: t("newPostForm.anonymousOption") },
+    { value: "FRIENDS_ONLY", label: t("newPostForm.friends_onlyOption") },
   ];
 
   const handleSubmit = () => {
@@ -76,7 +68,7 @@ const PostForm: React.FC<PostFormProps> = ({ open, onClose, onSubmit }) => {
     }
   };
 
-  const handleDeleteTag = (index: number) => {
+  const handleDeleteTag = (index) => {
     setFormData({
       ...formData,
       tags: formData.tags.filter((_, i) => i !== index),
@@ -147,6 +139,7 @@ const PostForm: React.FC<PostFormProps> = ({ open, onClose, onSubmit }) => {
         <Stack spacing={4}>
           <TextField
             variant="standard"
+            dir={isRTL(formData.title) ? "rtl" : "ltr"}
             name="title"
             label={t("newPostForm.titlePlaceholder")}
             value={formData.title}
@@ -171,10 +164,10 @@ const PostForm: React.FC<PostFormProps> = ({ open, onClose, onSubmit }) => {
             >
               {visibilityOptions.map((option) => (
                 <FormControlLabel
-                  key={option}
+                  key={option.value}
                   control={<Radio />}
-                  label={option}
-                  value={option}
+                  label={option.label}
+                  value={option.value}
                 />
               ))}
             </RadioGroup>
@@ -187,6 +180,7 @@ const PostForm: React.FC<PostFormProps> = ({ open, onClose, onSubmit }) => {
 
           <TextField
             label={t("newPostForm.contentPlaceholder")}
+            dir={isRTL(formData.content) ? "rtl" : "ltr"}
             value={formData.content}
             onChange={(e) =>
               setFormData({ ...formData, content: e.target.value })
