@@ -12,7 +12,6 @@ const DropDownMenu = forwardRef(({ menuItems }, ref) => {
       setAnchorEl(event.currentTarget);
     },
     closeMenu: () => {
-      console.log(menuItems);
       setAnchorEl(null);
     },
   }));

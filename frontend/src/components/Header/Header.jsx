@@ -63,7 +63,6 @@ export default function Header({
   };
 
   useEffect(() => {
-    console.log("JWT Token:", jwt);
     if (jwt) {
       const decoded = jwtDecode(jwt);
       setFullName(decoded.fullName);

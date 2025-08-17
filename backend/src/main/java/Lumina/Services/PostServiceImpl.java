@@ -1,6 +1,7 @@
 package Lumina.Services;
 
 import Lumina.Entities.Post;
+import Lumina.Entities.Visibility;
 import Lumina.Repositories.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,8 +15,8 @@ public class PostServiceImpl implements PostService {
 	private PostRepository postRepository;
 	
 	@Override
-	public List<Post> getAll () {
-		return postRepository.findAll();
+	public List<Post> getAll (String userId) {
+		return postRepository.findByUserIdOrVisibilityNot(userId, Visibility.PRIVATE);
 	}
 	
 	@Override

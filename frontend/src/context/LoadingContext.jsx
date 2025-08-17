@@ -1,4 +1,6 @@
 import { createContext, useState, useContext, useEffect } from "react";
+import Backdrop from "@mui/material/Backdrop";
+import CircularProgress from "@mui/material/CircularProgress";
 
 let externalSetLoading = () => {};
 
@@ -34,6 +36,13 @@ export const LoadingProvider = ({ children }) => {
   return (
     <LoadingContext.Provider value={{ loading, loadingText, setLoading }}>
       {children}
+
+      <Backdrop sx={{ color: "#fff", zIndex: 3000 }} open={loading}>
+        <div style={{ textAlign: "center" }}>
+          <CircularProgress color="inherit" />
+          {loadingText && <div style={{ marginTop: 8 }}>{loadingText}</div>}
+        </div>
+      </Backdrop>
     </LoadingContext.Provider>
   );
 };

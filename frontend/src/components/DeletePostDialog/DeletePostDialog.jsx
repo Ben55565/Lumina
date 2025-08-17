@@ -48,7 +48,13 @@ export default function DeletePostDialog({
           <Button onClick={() => setOpen(false)} sx={{ width: 150 }}>
             {t("postDeleteDialog.cancelButton")}
           </Button>
-          <Button onClick={onConfirm} sx={{ width: 150 }}>
+          <Button
+            onClick={() => {
+              setOpen(false);
+              onConfirm();
+            }}
+            sx={{ width: 150 }}
+          >
             {t("postDeleteDialog.confirmButton")}
           </Button>
         </DialogActions>

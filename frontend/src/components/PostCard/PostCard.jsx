@@ -111,7 +111,6 @@ const PostCard = ({
           height: 570,
         }}
       >
-        {/* TODO: make this conditional */}
         {String(post.userId) === String(userId) ? userControls() : null}
         <Box sx={{ mb: 4, textAlign: "center" }}>
           <Typography variant="h5" fontWeight="bold" component="h5">
@@ -184,12 +183,13 @@ const PostCard = ({
             pt: 1,
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2, ml: 2 }}>
             <Avatar {...avatarProps} />
-            <Box>
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
               <Typography fontWeight="bold" variant="body1">
                 {userInfo.name}{" "}
                 {userInfo.displayName ? `(${userInfo.displayName})` : ""}
+                {String(post.userId) === String(userId) ? " - Your Post" : null}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {post.timeStamp
@@ -213,6 +213,7 @@ const PostCard = ({
               flexDirection: "row",
               alignItems: "center",
               gap: 1,
+              mr: 2,
             }}
           >
             <VisibilityIcon color="primary" />

@@ -3,11 +3,13 @@ package Lumina.Controllers;
 import Lumina.DTO.PostDTO;
 import Lumina.DTO.PostResponseDTO;
 import Lumina.Entities.Post;
+import Lumina.Services.AiService;
 import Lumina.Services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
@@ -19,15 +21,24 @@ public class FeedController {
 	private PostService postService;
 	@Autowired
 	private MessageSource messageSource;
+	@Autowired
+	private AiService aiService;
 	
-	@GetMapping ("/get-all-posts")
-	public List<Post> getAllPosts () {
-		return postService.getAll();
+	@GetMapping ("/get-all-posts/{userId}")
+	public List<Post> getAllPosts (@PathVariable  String userId) {
+		return postService.getAll(userId);
+	}
+	
+	// TODO: Not working good for hebrew, fix that
+	@PostMapping ("/generate-tags")
+	public List<String> generateTags(@RequestBody PostDTO post) throws IOException {
+		return aiService.extractTags(post.getTitle(), post.getContent());
 	}
 	
 	@PostMapping ("/new-post")
 	public PostResponseDTO addNewPost (@RequestBody PostDTO post, Locale locale) {
 		Post toSave;
+		post.setTimeStamp(System.currentTimeMillis());
 		if (post.getId() != null) {
 			Post existing = postService.findById(post.getId());
 			if (existing != null) {

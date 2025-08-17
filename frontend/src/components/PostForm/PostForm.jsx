@@ -16,11 +16,19 @@ import {
   FormLabel,
   FormHelperText,
 } from "@mui/material";
+import Tooltip from "@mui/material/Tooltip";
 import { Add, Close } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 import { isRTL } from "../../utils/helperFunctions.js";
 
-const PostForm = ({ open, onClose, onSubmit, formData, setFormData }) => {
+const PostForm = ({
+  open,
+  onClose,
+  onSubmit,
+  formData,
+  setFormData,
+  handleGenerateTags,
+}) => {
   const [errors, setErrors] = useState({
     title: false,
     visibility: false,
@@ -54,7 +62,6 @@ const PostForm = ({ open, onClose, onSubmit, formData, setFormData }) => {
       mediaUrl: "",
       tags: [],
       tagInput: "",
-      timeStamp: null,
     });
   };
 
@@ -83,7 +90,6 @@ const PostForm = ({ open, onClose, onSubmit, formData, setFormData }) => {
       mediaUrl: "",
       tags: [],
       tagInput: "",
-      timeStamp: null,
     });
     setErrors({
       title: false,
@@ -210,9 +216,22 @@ const PostForm = ({ open, onClose, onSubmit, formData, setFormData }) => {
               onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
               fullWidth
             />
-            <Button variant="contained" onClick={handleAddTag}>
+            <Button
+              variant="contained"
+              sx={{ width: 30, height: 40 }}
+              onClick={handleAddTag}
+            >
               <Add fontSize="small" />
             </Button>
+            <Tooltip title="Generate tags based on content with AI">
+              <Button
+                variant="contained"
+                sx={{ width: 100, height: 40 }}
+                onClick={handleGenerateTags}
+              >
+                Generate
+              </Button>
+            </Tooltip>
           </Stack>
 
           {/* Tag Display */}

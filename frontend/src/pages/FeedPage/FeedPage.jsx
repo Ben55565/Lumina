@@ -24,7 +24,7 @@ export default function FeedPage({ userId, setAlertInfo }) {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const response = await api.get("/feed/get-all-posts");
+        const response = await api.get(`/feed/get-all-posts/${userId}`);
         setIsAuthenticated(true);
         setPosts(response.data);
       } catch (error) {
@@ -38,7 +38,41 @@ export default function FeedPage({ userId, setAlertInfo }) {
     const intervalId = setInterval(fetchPosts, 60000); // 60,000 ms = 60 sec
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [userId]);
+
+  const handleGenerateTags = async () => {
+    try {
+      const response = await api.post("/feed/generate-tags", formData);
+      if (response.data) {
+        setFormData((prevData) => ({
+          ...prevData,
+          tags: [
+            ...(prevData.tags || []),
+            ...response.data.map((tag) => tag.trim()),
+          ],
+        }));
+        setAlertInfo({
+          show: true,
+          type: "success",
+          message: "Tags generated successfully!",
+        });
+        setTimeout(() => {
+          setAlertInfo({ show: false });
+        }, 2000);
+      } else {
+        setAlertInfo({
+          show: true,
+          type: "error",
+          message: "Failed to generate tags.",
+        });
+        setTimeout(() => {
+          setAlertInfo({ show: false });
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Error generating tags:", error);
+    }
+  };
 
   const handleCreatePost = async (postData) => {
     const newPostData = {
@@ -46,11 +80,10 @@ export default function FeedPage({ userId, setAlertInfo }) {
       visibility: postData.visibility.toUpperCase(),
       userId: userId.toString(),
     };
-    console.log("Submitting post:", newPostData);
 
     try {
       const res = await api.post("/feed/new-post", newPostData);
-      console.log("Post created successfully:", res.data);
+
       setAlertInfo({
         show: true,
         type: res.data.result,
@@ -76,7 +109,7 @@ export default function FeedPage({ userId, setAlertInfo }) {
   const handleDeletePost = async (postId) => {
     try {
       const res = await api.delete(`/feed/delete-post/${postId}`);
-      console.log("Post deleted successfully:", res.data);
+      setPosts(posts.filter((post) => post.id !== postId));
       setAlertInfo({
         show: true,
         type: res.data.result,
@@ -84,7 +117,6 @@ export default function FeedPage({ userId, setAlertInfo }) {
       });
       setTimeout(() => {
         setAlertInfo({ show: false });
-        window.location.reload();
       }, 3000);
     } catch (error) {
       console.error("Error deleting post:", error);
@@ -125,6 +157,7 @@ export default function FeedPage({ userId, setAlertInfo }) {
             onSubmit={handleCreatePost}
             formData={formData}
             setFormData={setFormData}
+            handleGenerateTags={handleGenerateTags}
           />
         </Box>
       ) : !isAuthenticated ? (
