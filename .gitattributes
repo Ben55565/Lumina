@@ -1,0 +1,35 @@
+# -------------------------------
+# Ignore vendored / dependencies
+# -------------------------------
+node_modules/** linguist-vendored
+vendor/** linguist-vendored
+bower_components/** linguist-vendored
+*.min.js linguist-vendored
+*.min.css linguist-vendored
+dist/** linguist-vendored
+build/** linguist-vendored
+*.lock linguist-vendored
+*.dll linguist-vendored
+*.exe linguist-vendored
+*.class linguist-vendored
+*.jar linguist-vendored
+
+# -------------------------------
+# Ignore generated files
+# -------------------------------
+*.pb.go linguist-generated
+*.gen.go linguist-generated
+*.designer.cs linguist-generated
+*.g.dart linguist-generated
+*.pyc linguist-generated
+*.pyo linguist-generated
+*.o linguist-generated
+
+# -------------------------------
+# Force language detection (optional)
+# -------------------------------
+*.tmpl linguist-language=HTML
+*.tsql linguist-language=SQL
+*.hbs linguist-language=HTML
+*.jsx linguist-language=JavaScript
+*.tsx linguist-language=TypeScript
