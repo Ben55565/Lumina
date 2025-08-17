@@ -36,6 +36,7 @@ Lumina is a social platform designed to provide a safe, empathetic, and supporti
 - UI components follow Material Design for accessibility and responsiveness.
 - Dynamic text alignment based on post language (LTR/RTL).
 - Error handling and validation built into form components.
+- Tags generating option using keyword extraction with KeyBERT.
 
 ---
 
